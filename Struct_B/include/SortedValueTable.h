@@ -4,11 +4,11 @@
 class SortedValueTable
 {
 public:
-    SortedValueTable(std::vector<long long> list);
+    SortedValueTable(std::vector<double> list);
     int count() const;
-    int positionOf(long long v) const;
-    long long valueAt(int pos) const;
+    int positionOf(double v) const;
+    double valueAt(int pos) const;
 
 private:
-    std::vector<long long> a;
+    std::vector<double> a;
 };

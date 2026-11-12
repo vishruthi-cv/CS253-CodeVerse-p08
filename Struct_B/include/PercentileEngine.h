@@ -6,13 +6,13 @@
 class PercentileEngine
 {
 public:
-    PercentileEngine(std::vector<long long> allValues);
-    void insert(long long v);
-    void remove(long long v);
+    PercentileEngine(std::vector<double> allValues);
+    void insert(double v);
+    void remove(double v);
     int size() const;
-    long long kth(int k) const;
-    long long percentile(int p) const;
-    long long median() const;
+    double kth(int k) const;
+    double percentile(double p) const;   
+    double median() const;
 
 private:
     SortedValueTable table;
