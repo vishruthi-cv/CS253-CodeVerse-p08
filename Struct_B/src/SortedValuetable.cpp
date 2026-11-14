@@ -4,20 +4,17 @@
 SortedValueTable::SortedValueTable(std::vector<double> list)
 {
     std::sort(list.begin(), list.end());
-    for (int i = 0; i < (int)list.size(); i++)
-    {
+    for (int i = 0; i < (int)list.size(); i++){
         if (i == 0 || list[i] != list[i - 1])
             a.push_back(list[i]);
     }
 }
 
-int SortedValueTable::count() const
-{
+int SortedValueTable::count() const{
     return (int)a.size();
 }
 
-int SortedValueTable::positionOf(double v) const
-{
+int SortedValueTable::positionOf(double v) const{
     int low = 0;
     int high = (int)a.size() - 1;
     while (low <= high)

@@ -9,7 +9,7 @@ public:
     int findKth(int k) const;
 
 private:
-    std:: vector<int> tree;
+    std::vector<int> tree;
     int n;
     int topPower;
 };

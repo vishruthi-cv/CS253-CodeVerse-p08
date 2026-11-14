@@ -75,8 +75,10 @@ int testTracker(){
     vector<double> sorted;
     long long nextId = 1;
 
-    for (int step = 0; step < 200000; step++){
-        if (liveIds.size() < 500 || (liveIds.size() < 2000 && rand() % 2 == 0)){
+    for (int step = 0; step < 200000; step++)
+    {
+        if (liveIds.size() < 500 || (liveIds.size() < 2000 && rand() % 2 == 0))
+        {
             double v = pool[rand() % pool.size()];
             tracker.insert(nextId, v);
             liveIds.push_back(nextId);
@@ -84,8 +86,9 @@ int testTracker(){
             sorted.insert(upper_bound(sorted.begin(), sorted.end(), v), v);
             nextId++;
         }
-        else{
-            int idx = rand() % liveIds.size();        
+        else
+        {
+            int idx = rand() % liveIds.size();     
             tracker.retract(liveIds[idx]);
             double v = liveValues[idx];
             sorted.erase(lower_bound(sorted.begin(), sorted.end(), v));
@@ -95,14 +98,15 @@ int testTracker(){
 
         int n = sorted.size();
         double ps[3] = {0.5, 0.9, 0.99};
-        for (int j = 0; j < 3; j++){
-            int k = (int)((ps[j] * 100 * n + 99) / 100);
-            
+        for (int j = 0; j < 3; j++)
+        {
+
             int percent = (int)(ps[j] * 100 + 0.5);
-            k = (percent * n + 99) / 100;
+            int k = (percent * n + 99) / 100;
             if (k < 1)
                 k = 1;
-            if (tracker.query(ps[j]) != sorted[k - 1]){
+            if (tracker.query(ps[j]) != sorted[k - 1])
+            {
                 cout << "tracker: wrong answer at step " << step << " for p = " << ps[j] << endl;
                 return 1;
             }
@@ -112,7 +116,6 @@ int testTracker(){
 }
 
 int main(){
-    
     if (testEngine() != 0)
         return 1;
     if (testTracker() != 0)
