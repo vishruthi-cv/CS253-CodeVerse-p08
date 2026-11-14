@@ -1,13 +1,12 @@
 #pragma once
 #include <vector>
-#include <unordered_map>
 #include "IPercentileTracker.h"
 #include "PercentileEngine.h"
+#include "IdTable.h"
 
-class PercentileTrackerB : public IPercentileTracker
-{
+class PercentileTrackerB : public IPercentileTracker{
 public:
-    
+
     PercentileTrackerB(std::vector<double> allValues);
 
     void insert(long long id, double value) override;
@@ -16,5 +15,5 @@ public:
 
 private:
     PercentileEngine engine;
-    std::unordered_map<long long, double> valueOf;   
+    IdTable table;   
 };
