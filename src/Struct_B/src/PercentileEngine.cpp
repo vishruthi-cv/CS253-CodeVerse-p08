@@ -8,12 +8,18 @@ PercentileEngine::PercentileEngine(std::vector<double> allValues)
 }
 
 void PercentileEngine::insert(double v){
-    fen.add(table.positionOf(v), 1);
+    int pos = table.positionOf(v);
+    if (pos == 0)
+        return;                  
+    fen.add(pos, 1);
     total++;
 }
 
 void PercentileEngine::remove(double v){
-    fen.add(table.positionOf(v), -1);
+    int pos = table.positionOf(v);
+    if (pos == 0)
+        return;                  
+    fen.add(pos, -1);
     total--;
 }
 
@@ -34,7 +40,6 @@ double PercentileEngine::percentile(double p) const{
         k = total;
     return kth(k);
 }
-
 
 double PercentileEngine::median() const{
     return kth((total + 1) / 2);
