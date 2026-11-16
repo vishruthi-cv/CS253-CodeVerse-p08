@@ -1,5 +1,11 @@
 #include "../include/MinHeap.h"
 
+static bool reportFail(std::string *why, const std::string &msg)
+{
+    if (why != nullptr)
+        *why = msg;
+    return false;
+}
 void MinHeap::push(item x)
 {
     a.push_back(x);
@@ -8,7 +14,7 @@ void MinHeap::push(item x)
     {
         int parent = (i - 1) / 2;
         if (itemLess(a[i], a[parent]))
-        { // child is smaller, so swap up
+        {
             item temp = a[parent];
             a[parent] = a[i];
             a[i] = temp;
@@ -64,27 +70,22 @@ void MinHeap::build(std::vector<item> list)
 
 void MinHeap::siftDown(int i)
 {
-    int n = (int)a.size();
-    while (true)
+    int n = a.size();
+
+    while (2 * i + 1 < n)
     {
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
-        int smallest = i;
-        if (left < n && itemLess(a[left], a[smallest]))
-        {
-            smallest = left;
-        }
-        if (right < n && itemLess(a[right], a[smallest]))
-        {
-            smallest = right;
-        }
-        if (smallest == i)
-        {
+        int child = 2 * i + 1;
+
+        if (child + 1 < n && itemLess(a[child + 1], a[child]))
+            child++;
+
+        if (!itemLess(a[child], a[i]))
             break;
-        }
+
         item temp = a[i];
-        a[i] = a[smallest];
-        a[smallest] = temp;
-        i = smallest;
+        a[i] = a[child];
+        a[child] = temp;
+
+        i = child;
     }
 }

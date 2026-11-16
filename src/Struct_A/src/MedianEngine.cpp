@@ -2,6 +2,13 @@
 #include <cmath>
 #include <vector>
 
+static bool reportFail(std::string *why, const std::string &msg)
+{
+    if (why != nullptr)
+        *why = msg;
+    return false;
+}
+
 MedianEngine::MedianEngine(int windowSize, double percentile)
     : window(windowSize < 1 ? 1 : windowSize),
       p(percentile),
@@ -242,3 +249,109 @@ int MedianEngine::liveCount() const { return lowLive + highLive; }
 int MedianEngine::deadCount() const { return deadItems; }
 int MedianEngine::physicalSize() const { return low.size() + high.size(); }
 int MedianEngine::purgeCount() const { return purges; }
+
+bool MedianEngine::checkConsistency(std::string *why) const
+{
+    const std::vector<item> &a = low.items();
+    const std::vector<item> &b = high.items();
+
+    // 1. Heap order: low is a max heap, high is a min heap
+    for (int i = 1; i < (int)a.size(); i++)
+    {
+        int parent = (i - 1) / 2;
+        if (itemLess(a[parent], a[i]))
+            return reportFail(why, "low heap order broken at index " + std::to_string(i));
+    }
+    for (int i = 1; i < (int)b.size(); i++)
+    {
+        int parent = (i - 1) / 2;
+        if (itemLess(b[i], b[parent]))
+            return reportFail(why, "high heap order broken at index " + std::to_string(i));
+    }
+
+    // 2. Walk every item physically inside the heaps and compare with its table record
+    int liveLowSeen = 0, liveHighSeen = 0, deadSeen = 0;
+    bool haveLow = false, haveHigh = false;
+    item maxLiveLow, minLiveHigh;
+
+    for (int i = 0; i < (int)a.size(); i++)
+    {
+        const entry *e = table.find(a[i].id);
+        if (e == nullptr)
+            return reportFail(why, "item in low heap has no table record, id " + std::to_string(a[i].id));
+        if (e->side != 0)
+            return reportFail(why, "table says high but item is in low heap, id " + std::to_string(a[i].id));
+        if (e->dead)
+            deadSeen++;
+        else
+        {
+            liveLowSeen++;
+            if (!haveLow || itemLess(maxLiveLow, a[i]))
+            {
+                maxLiveLow = a[i];
+                haveLow = true;
+            }
+        }
+    }
+    for (int i = 0; i < (int)b.size(); i++)
+    {
+        const entry *e = table.find(b[i].id);
+        if (e == nullptr)
+            return reportFail(why, "item in high heap has no table record, id " + std::to_string(b[i].id));
+        if (e->side != 1)
+            return reportFail(why, "table says low but item is in high heap, id " + std::to_string(b[i].id));
+        if (e->dead)
+            deadSeen++;
+        else
+        {
+            liveHighSeen++;
+            if (!haveHigh || itemLess(b[i], minLiveHigh))
+            {
+                minLiveHigh = b[i];
+                haveHigh = true;
+            }
+        }
+    }
+
+    // 3. Counters must match what we actually counted
+    if (liveLowSeen != lowLive)
+        return reportFail(why, "lowLive is wrong");
+    if (liveHighSeen != highLive)
+        return reportFail(why, "highLive is wrong");
+    if (deadSeen != deadItems)
+        return reportFail(why, "deadItems is wrong");
+
+    // 4. Table has exactly one record per physical item (no extras, no duplicate ids)
+    if (table.size() != (int)(a.size() + b.size()))
+        return reportFail(why, "table size does not match physical heap size");
+
+    // 5. low holds exactly the right number of live items for this percentile
+    if (lowLive != targetLow())
+        return reportFail(why, "lowLive does not equal targetLow()");
+
+    // 6. Every live item in low is at most every live item in high
+    if (haveLow && haveHigh && itemLess(minLiveHigh, maxLiveLow))
+        return reportFail(why, "a live item in high is smaller than a live item in low");
+
+    // 7. Both tops are live, so query() reads a real value
+    if (!a.empty())
+    {
+        const entry *e = table.find(a[0].id);
+        if (e != nullptr && e->dead)
+            return reportFail(why, "top of low heap is dead");
+    }
+    if (!b.empty())
+    {
+        const entry *e = table.find(b[0].id);
+        if (e != nullptr && e->dead)
+            return reportFail(why, "top of high heap is dead");
+    }
+
+    // 8. Memory bound from the purge rule, and the queue never exceeds the window
+    if (deadItems > lowLive + highLive)
+        return reportFail(why, "dead items outnumber live items, purge missed");
+    if (queue.size() > window)
+        return reportFail(why, "expiry queue is larger than the window");
+
+    return true;
+}

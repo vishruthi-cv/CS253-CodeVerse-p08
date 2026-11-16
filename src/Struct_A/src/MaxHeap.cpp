@@ -63,27 +63,21 @@ void MaxHeap::build(std::vector<item> list)
 
 void MaxHeap::siftDown(int i)
 {
-    int n = (int)a.size();
-    while (true)
+    int n = a.size();
+
+    while (2 * i + 1 < n)
     {
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
-        int biggest = i;
-        if (left < n && itemLess(a[biggest], a[left]))
-        {
-            biggest = left;
-        }
-        if (right < n && itemLess(a[biggest], a[right]))
-        {
-            biggest = right;
-        }
-        if (biggest == i)
-        {
+        int child = 2 * i + 1;
+
+        if (child + 1 < n && itemLess(a[child], a[child + 1]))
+            child++;
+
+        if (!itemLess(a[i], a[child]))
             break;
-        }
         item temp = a[i];
-        a[i] = a[biggest];
-        a[biggest] = temp;
-        i = biggest;
+        a[i] = a[child];
+        a[child] = temp;
+
+        i = child;
     }
 }
