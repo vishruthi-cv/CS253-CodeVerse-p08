@@ -4,6 +4,7 @@
 #include "MinHeap.h"
 #include "HashTable.h"
 #include "ExpiryQueue.h"
+#include <string>
 
 class MedianEngine
 {
