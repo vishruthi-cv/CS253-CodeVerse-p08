@@ -10,15 +10,11 @@ Declared use costs no marks. Each member adds their own rows below.
 | Git and GitHub | whole team | Version control, branches, pull requests and reviews | whole repository | n/a |
 | VS Code | whole team | Editing | n/a | n/a |
 | g++ (MSYS2, 16.2.0), Python 3 with matplotlib, pandas, numpy | Dwithi (Analyst) | Compiling the benchmark; making the figures | scripts/run_all.sh, scripts/plot.py | n/a |
+| Gemini (Google), Nov 2026 | Neharika (Structure B owner) | Understanding Fenwick trees and binary-lifting descent, verifying edge cases in Structure B, and checking code cleanliness (`std::` formatting) | include/FenwickTree.h, include/IdTable.h, include/PercentileEngine.h, include/PercentileTrackerB.h, include/SortedValueTable.h, src/structB/FenwickTree.cpp, src/structB/IdTable.cpp, src/structB/PercentileEngine.cpp, src/structB/PercentileTrackerB.cpp, src/structB/SortedValuetable.cpp, src/structB/mainB.cpp | Wrote the core implementation and verified all outputs against the sorted-vector oracle on edge cases (empty window, duplicate values, retractions). |
+| Claude (Anthropic), Nov 2026 | Neharika (Structure B owner) | Checking proof steps for Derivation D2 and organizing notes for the report | docs/derivations/D2_250001073.pdf, REPORT.md (Section 5) | Rewrote the proof and report section in my own words and verified every step of the loop invariant. |
 
 <!-- Teammates: add one row per tool you used (AI assistants included), with your name,
      what it was used for, which files, and what you changed or verified. -->
-
-
-| Gemini (Google), Nov 2026 | Neharika (Structure B owner) | Understanding Fenwick trees and binary-lifting descent, verifying edge cases in Structure B, and checking code cleanliness (`std::` formatting) | src/structB/fenwick_order_stats.hpp, src/structB/fenwick_order_stats.cpp | Wrote the core implementation and verified all outputs against the sorted-vector oracle on edge cases (empty window, duplicate values, retractions). |
-| Claude (Anthropic), Nov 2026 | Neharika (Structure B owner) | Checking proof steps for Derivation D2 and organizing notes for the report | docs/derivations/D2_250001073.pdf, REPORT.md (Section 5) | Rewrote the proof and report section in my own words and verified every step of the loop invariant. |
-## Representative prompts
-<paste two or three of your real prompts per tool, with the date>
 
 ## Representative prompts
 
