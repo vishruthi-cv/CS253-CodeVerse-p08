@@ -1,5 +1,11 @@
 #include "../include/MinHeap.h"
 
+static bool reportFail(std::string *why, const std::string &msg)
+{
+    if (why != nullptr)
+        *why = msg;
+    return false;
+}
 void MinHeap::push(item x)
 {
     a.push_back(x);
