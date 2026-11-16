@@ -1,11 +1,15 @@
 #pragma once
+
 #include <cstdint>
-#include <optional>
 #include <string>
 
 /**
  * @brief Abstract interface for the Running Median / Percentile Engine with Retractions.
  * Decouples the Application layer from underlying data structure implementations (Struct A / Struct B).
+ *
+ * Architectural Contract (see INTERFACE.md):
+ * - Empty Window (size() == 0): getMedian() and getPercentile(p) MUST return -1.0.
+ * - Even Element Count (size() % 2 == 0): getMedian() MUST return (v_{N/2 - 1} + v_{N/2}) / 2.0.
  */
 class IPercentileTracker {
 public:
@@ -16,9 +20,9 @@ public:
     virtual bool erase(int64_t id) = 0;
     virtual bool update(int64_t id, double newValue) = 0;
 
-    // Statistical queries
-    virtual std::optional<double> getMedian() const = 0;
-    virtual std::optional<double> getPercentile(double p) const = 0; // p in [0.0, 100.0]
+    // Statistical queries (must return -1.0 sentinel when empty())
+    virtual double getMedian() const = 0;
+    virtual double getPercentile(double p) const = 0; // p in [0.0, 100.0]
 
     // Metadata & diagnostics
     virtual size_t size() const = 0;
