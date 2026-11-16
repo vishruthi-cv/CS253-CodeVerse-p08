@@ -14,6 +14,12 @@ Declared use costs no marks. Each member adds their own rows below.
 <!-- Teammates: add one row per tool you used (AI assistants included), with your name,
      what it was used for, which files, and what you changed or verified. -->
 
+
+| Gemini (Google), Nov 2026 | Neharika (Structure B owner) | Understanding Fenwick trees and binary-lifting descent, verifying edge cases in Structure B, and checking code cleanliness (`std::` formatting) | src/structB/fenwick_order_stats.hpp, src/structB/fenwick_order_stats.cpp | Wrote the core implementation and verified all outputs against the sorted-vector oracle on edge cases (empty window, duplicate values, retractions). |
+| Claude (Anthropic), Nov 2026 | Neharika (Structure B owner) | Checking proof steps for Derivation D2 and organizing notes for the report | docs/derivations/D2_250001073.pdf, REPORT.md (Section 5) | Rewrote the proof and report section in my own words and verified every step of the loop invariant. |
+## Representative prompts
+<paste two or three of your real prompts per tool, with the date>
+
 ## Representative prompts
 
 Reworded from the chat. Replace with your own exact wording and dates if you kept them.
@@ -23,3 +29,12 @@ Reworded from the chat. Replace with your own exact wording and dates if you kep
 - 2026-11-12: "Write the benchmark program that feeds the same stream of readings to Structure A and Structure B, times them, measures memory, and writes a CSV, and a script that draws the graphs."
 - 2026-11-14: "Structure B's interface has changed (it now takes decimal values and uses PercentileTrackerB). Update the benchmark to work with it."
 - 2026-11-14: "The program crashes with a segmentation fault when I run it. Here is the output. What is wrong?"
+
+**Gemini (Google), Neharika (Structure B owner)**
+
+- 2026-11-15: "Explain how a Fenwick tree stores prefix frequency counts and how binary-lifting descent finds the k-th smallest element in O(log U)."
+- 2026-11-16: "Check my Structure B implementation for off-by-one errors during retractions and clean up the C++17 `std::` syntax."
+
+**Claude (Anthropic), Neharika (Structure B owner)**
+
+- 2026-11-16: "Review my proof steps for Derivation D2 (loop invariant for binary-lifting descent) and verify if any boundary condition is missing."
