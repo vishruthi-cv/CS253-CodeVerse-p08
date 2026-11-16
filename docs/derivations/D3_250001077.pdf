@@ -1,8 +1,7 @@
 ### Theorem: Dynamic $p$-th Percentile Maintenance via Dual-Heap Partitioning
 
 **Statement:**
-
-For a fixed percentile parameter $p \in (0, 1)$, maintaining a dynamic multiset $S$ of $n$ elements partitioned across two heaps in a strict size ratio of $p : (1 - p)$ answers $p$-th percentile queries in $O(1)$ time and supports dynamic updates (insertions, updates, and retractions) in $O(\log n)$ time per operation.
+For a fixed percentile parameter $p \in (0, 1)$, maintaining a dynamic multiset $S$ of $n$ elements partitioned across two heaps in a strict size ratio of $p : (1 - p)$ answers $p$-th percentile queries in $O(1)$ worst-case time and supports dynamic updates (insertions, retractions, and value updates) in $O(\log n)$ time per operation.
 
 ---
 
@@ -13,90 +12,68 @@ Let $S$ be the active multiset of $n = \vert{}S\vert{}$ elements at any given ti
 1. **Lower Partition ($L$):** Implemented as a **Max-Heap**, containing the smallest elements of $S$.
 2. **Upper Partition ($U$):** Implemented as a **Min-Heap**, containing the largest elements of $S$.
 
-To guarantee correctness, the data structure enforces two strict invariants after every update:
+To guarantee exact rank retrieval, the data structure enforces two strict invariants after every update:
 
 * **Order Invariant:** Every element in the lower partition is less than or equal to every element in the upper partition:
+  $$\max(L) \le \min(U)$$
+  Because $L$ is a Max-Heap and $U$ is a Min-Heap, the boundary elements $\max(L)$ and $\min(U)$ are immediately accessible at the roots of their respective heaps in $O(1)$ time.
 
-$$\max(L) \le \min(U)$$
-
-
-
-Because $L$ is a Max-Heap and $U$ is a Min-Heap, the boundary elements $\max(L)$ and $\min(U)$ are immediately accessible at the roots of their respective heaps in $O(1)$ time.
-* **Size Ratio Invariant:** Let the target size of the lower partition be $k(n) = \lceil p \cdot n \rceil$ (or $\lfloor p \cdot n \rfloor + 1$ for $0$-indexed rank). The sizes of the two heaps are maintained at:
-
-$$\vert{}L\vert{} = \lceil p \cdot n \rceil \quad \text{and} \quad \vert{}U\vert{} = n - \lceil p \cdot n \rceil$$
-
-
-
-As $n \to \infty$, the ratio of their sizes converges to:
-
-$$\lim_{n \to \infty} \frac{\vert{}L\vert{}}{\vert{}U\vert{}} = \frac{p \cdot n}{(1 - p) \cdot n} = \frac{p}{1 - p}$$
-
-
+* **Size Ratio Invariant:** For $n \ge 1$, let the target active size of the lower partition be $k(n) = \lceil p \cdot n \rceil$ (with $k(0) = 0$ when $n = 0$). The active sizes of the two heaps are maintained at:
+  $$\vert{}L\vert{} = \lceil p \cdot n \rceil \quad \text{and} \quad \vert{}U\vert{} = n - \lceil p \cdot n \rceil$$
+  As $n \to \infty$, the ratio of their sizes converges to:
+  $$\lim_{n \to \infty} \frac{\vert{}L\vert{}}{\vert{}U\vert{}} = \frac{p \cdot n}{(1 - p) \cdot n} = \frac{p}{1 - p}$$
 
 ---
 
 ### 2. Proof of Query Correctness in $O(1)$ Time
 
-By definition, the $p$-th percentile of a sorted sequence $x_1 \le x_2 \le \dots \le x_n$ is the element at rank $r = \lceil p \cdot n \rceil$.
+By definition, for $n \ge 1$, the $p$-th percentile of a sorted sequence $x_1 \le x_2 \le \dots \le x_n$ is the element at 1-based rank $r = \lceil p \cdot n \rceil$. (When $n = 0$, the query returns the empty-window sentinel $-1.0$ in $O(1)$ time.)
 
-1. From the **Size Ratio Invariant**, the lower partition $L$ contains exactly $r = \lceil p \cdot n \rceil$ elements.
+1. From the **Size Ratio Invariant**, the lower partition $L$ contains exactly $r = \lceil p \cdot n \rceil$ active elements.
 2. From the **Order Invariant**, all $r$ elements in $L$ are smaller than or equal to all $n - r$ elements in $U$. Therefore, $L$ contains the exact set of the $r$ smallest elements $\{x_1, x_2, \dots, x_r\}$ of $S$.
-3. Since $L$ is structured as a Max-Heap, its root element is the maximum of $\{x_1, x_2, \dots, x_r\}$, which is precisely $x_r = x_{\lceil p \cdot n \rceil}$.
+3. Since $L$ is structured as a Max-Heap, its root element is the maximum of $\{x_1, x_2, \dots, x_r\}$, which is precisely:
+   $$\text{root}(L) = \max(L) = x_r = x_{\lceil p \cdot n \rceil}$$
 
-Thus, querying the $p$-th percentile requires only peeking at the root of $L$ (`L.top()`), which executes in **$O(1)$ worst-case time**. *(Note: If interpolation is used when $p \cdot n$ is an integer, the adjacent element $x_{r+1}$ is $\min(U)$, which is simultaneously available at `U.top()` in $O(1)$ time).*
+Thus, querying the $p$-th percentile requires only peeking at the root of $L$ (`L.top()`), which executes in **$O(1)$ worst-case time**.
+
+*(Special Case — Median Interpolation for $p = 0.5$ and Even $n$:* When $p = 0.5$ and $n$ is even, $r = n/2$, so $\max(L) = x_{n/2}$ and $\min(U) = x_{n/2 + 1}$. Both boundary elements are simultaneously accessible at `L.top()` and `U.top()` in $O(1)$ time, yielding the exact arithmetic mean $\frac{\max(L) + \min(U)}{2.0}$ in $O(1)$ time.)*
 
 ---
 
 ### 3. Proof of $O(\log n)$ Update Complexity
 
-Consider any single-element modification to $S$ (an **insertion**, a **retraction/deletion**, or a **value update**):
+Consider any single-element modification to $S$ (an **insertion**, a **retraction**, or a **value update**) that changes $n$ by $\Delta n \in \{-1, 0, +1\}$:
 
-#### Step A: Element Insertion or Retraction
+#### Step A: Element Insertion, Retraction, or Value Update
+* **Insertion of $x$:**
+  Compare $x$ with $\max(L)$ (or insert directly into $L$ if $n = 0$). If $x \le \max(L)$, insert $x$ into $L$; otherwise, insert $x$ into $U$. Inserting into a binary heap (or indexed heap) of size at most $n + 1$ requires at most $\lfloor \log_2(n + 1) \rfloor$ upward swaps, taking **$O(\log n)$** worst-case time.
+* **Retraction of $x$ (via Indexed Heap or Lazy Deletion):**
+  * *Indexed Heap:* Locate $x$ via an ID-to-index hash map in $O(1)$ expected time, swap with the last leaf of its containing heap, and restore heap order via `siftUp`/`siftDown` in **$O(\log n)$** worst-case time.
+  * *Lazy Deletion:* Mark the element ID as retracted in a hash table in $O(1)$ time and decrement the valid active counter of its containing heap (`activeL` or `activeU`). Stale roots are popped whenever an invalidated element surfaces at `L.top()` or `U.top()`. Because each inserted element is pushed once and popped at most once across its entire lifetime, the amortized cost of pruning is **$O(\log n)$** per retraction.
+* **Value Update ($x_{\text{old}} \rightarrow x_{\text{new}}$):**
+  Executed as an atomic retraction of $x_{\text{old}}$ followed by an insertion of $x_{\text{new}}$, requiring at most two heap updates and one rebalance step, taking **$O(\log n)$** time.
 
-* **Insertion of $x$:** Compare $x$ with $\max(L)$. If $x \le \max(L)$, insert $x$ into $L$; otherwise, insert $x$ into $U$. Inserting into a binary heap (or indexed heap) of size at most $n$ requires at most $\lfloor \log_2 n \rfloor$ swaps, taking **$O(\log n)$** time.
-* **Retraction of $x$ (via Lazy Deletion or Indexed Heap):**
-* *Indexed Heap:* Locate $x$ via a hash map in $O(1)$ expected time, swap with the leaf of its containing heap, and bubble up/down in **$O(\log n)$** time.
-* *Lazy Deletion:* Mark $x$ as retracted in a hash table in $O(1)$ time and decrement the valid active count of its respective heap. Valid roots are pruned whenever an invalidated element surfaces at `L.top()` or `U.top()`. Because each element is inserted once and popped at most once, the amortized cost of pruning is **$O(\log n)$** per retraction.
+#### Step B: Rebalancing to Restore the Size Ratio Invariant
+Because any single insertion or retraction changes $n$ by $\pm 1$, the target lower-partition size $k(n) = \lceil p \cdot n \rceil$ changes by at most $1$:
+$$\vert{}\lceil p(n \pm 1) \rceil - \lceil p \cdot n \rceil\vert{} \le 1$$
+Consequently, after Step A, the active size $\vert{}L\vert{}$ differs from its new target $k(n')$ by **at most $1$ element**:
 
+1. **Case 1 ($\vert{}L\vert{} > \lceil p \cdot n' \rceil$):**
+   Pop the maximum element $m = \max(L)$ from $L$ (`L.pop()`) in $O(\log n)$ time and push $m$ into $U$ (`U.push(m)`) in $O(\log n)$ time. Because $m = \max(L)$ was greater than or equal to all remaining elements in $L$, and by the prior Order Invariant $m \le \min(U)$, placing $m$ into $U$ preserves $\max(L_{\text{new}}) \le m \le \min(U_{\text{new}})$.
+2. **Case 2 ($\vert{}L\vert{} < \lceil p \cdot n' \rceil$):**
+   Pop the minimum element $m = \min(U)$ from $U$ (`U.pop()`) in $O(\log n)$ time and push $m$ into $L$ (`L.push(m)`) in $O(\log n)$ time. Because $m = \min(U)$ was less than or equal to all remaining elements in $U$, and $\max(L) \le m$, placing $m$ into $L$ preserves $\max(L_{\text{new}}) \le m \le \min(U_{\text{new}})$.
 
-
-#### Step B: Rebalancing the Size Ratio
-
-When $n$ changes by $\Delta n \in \{+1, -1\}$, the target size of the lower partition shifts from $k(n) = \lceil p \cdot n \rceil$ to $k(n + \Delta n) = \lceil p \cdot (n + \Delta n) \rceil$.
-
-Because $p \in (0, 1)$, changing $n$ by $1$ alters the product $p \cdot n$ by strictly less than $1$:
-
-
-$$\vert{}p(n + \Delta n) - p \cdot n\vert{} = p < 1$$
-
-
-Consequently, the ceiling function $\lceil p \cdot n \rceil$ can change by **at most $1$**:
-
-
-$$\vert{}\lceil p(n + \Delta n) \rceil - \lceil p \cdot n \rceil\vert{} \in \{0, 1\}$$
-
-Combining the size change of $L$ from the operation itself ($\pm 1$ or $0$) with the target shift ($\pm 1$ or $0$), the size of $L$ deviates from its new target $k(n + \Delta n)$ by **at most $1$ element**:
-
-* **Case 1 ($\vert{}L\vert{} = k(n + \Delta n) + 1$):** Pop $\max(L)$ from $L$ and push it into $U$. Since $\max(L) \le \min(U)$ held prior to the shift, moving $\max(L)$ to $U$ preserves the Order Invariant.
-* **Case 2 ($\vert{}L\vert{} = k(n + \Delta n) - 1$):** Pop $\min(U)$ from $U$ and push it into $L$. Since $\max(L) \le \min(U)$, moving $\min(U)$ to $L$ preserves the Order Invariant.
-* **Case 3 ($\vert{}L\vert{} = k(n + \Delta n)$):** No rebalancing is required.
-
-Each rebalancing transfer executes at most one `pop` and one `push` operation on heaps of size $\le n$. Because the height of each heap is bounded by $\lceil \log_2 n \rceil$, rebalancing takes **$O(\log n)$** time.
+In both cases, at most **one root transfer** (`pop` + `push`) is required to restore both the **Size Ratio Invariant** and the **Order Invariant**, taking **$O(\log n)$** time.
 
 ---
 
-### 4. Conclusion
+### 4. Complexity Summary
 
-Every update requires:
+| Operation | Mechanism | Time Complexity | Space Complexity |
+| :--- | :--- | :--- | :--- |
+| `insert(id, val)` | Partition comparison + at most 1 root transfer | $O(\log n)$ | $O(n)$ |
+| `retract(id)` | Lazy deletion / indexed swap + at most 1 root transfer | $O(\log n)$ amortized ($O(\log n)$ worst-case indexed) | $O(n)$ |
+| `update(id, val)` | Atomic retraction + re-insertion + rebalance | $O(\log n)$ | $O(n)$ |
+| `getPercentile(p)` | Direct root peek at `L.top()` (and `U.top()` for even median) | **$O(1)$ worst-case** | $O(1)$ auxiliary |
 
-1. $O(\log n)$ time to insert or remove the element while preserving heap ordering.
-2. $O(1)$ heap-to-heap transfers (at most $1$ element moved) to restore the $p : (1 - p)$ size invariant, each costing $O(\log n)$ time.
-
-Summing these operations yields a total time complexity of:
-
-
-$$T_{\text{update}}(n) = O(\log n) + O(\log n) = O(\log n)$$
-
-
-while maintaining $O(1)$ worst-case query time for the $p$-th percentile.
+$\blacksquare$
