@@ -19,6 +19,9 @@ public:
     int deadCount() const;
     int physicalSize() const;
     int purgeCount() const;
+    // Checks every internal rule. Returns true if all is well.
+    // On failure returns false and, if why is not null, writes the reason.
+    bool checkConsistency(std::string *why = nullptr) const;
 
 private:
     int window;

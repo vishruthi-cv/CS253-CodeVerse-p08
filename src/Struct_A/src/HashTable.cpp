@@ -1,4 +1,5 @@
 #include "HashTable.h"
+#include <string>
 
 HashTable::HashTable()
 {
@@ -38,6 +39,19 @@ void HashTable::insert(long long key, int side)
 entry *HashTable::find(long long key)
 {
     std::vector<entry> &b = buckets[indexOf(key)];
+    for (int i = 0; i < (int)b.size(); i++)
+    {
+        if (b[i].key == key)
+        {
+            return &b[i];
+        }
+    }
+    return nullptr;
+}
+
+const entry *HashTable::find(long long key) const
+{
+    const std::vector<entry> &b = buckets[indexOf(key)];
     for (int i = 0; i < (int)b.size(); i++)
     {
         if (b[i].key == key)
