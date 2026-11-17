@@ -1,6 +1,7 @@
 #include "MedianEngine.h"
 #include <cmath>
 #include <vector>
+#include <string>
 
 static bool reportFail(std::string *why, const std::string &msg)
 {
