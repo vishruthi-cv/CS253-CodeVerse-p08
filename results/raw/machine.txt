@@ -1,0 +1,8 @@
+date: Tue Nov 17 08:04:37 IST 2026
+compiler: g++.exe (Rev4, Built by MSYS2 project) 16.2.0
+MINGW64_NT-10.0-26200 TUMMALADWITHI 3.6.7-fb42d713.x86_64 2026-03-29 11:44 UTC x86_64 Msys
+processor: 13th Gen Intel(R) Core(TM) i7-13620H, 10 cores, 16 logical processors, base speed 2.40 GHz
+caches (totals across all cores): L1 864 KB, L2 9.5 MB, L3 24.0 MB
+RAM: 16 GB DDR4-3200
+operating system: Windows (build 10.0.26200)
+compiler and flags: g++ 16.2.0 (MSYS2), -std=c++17 -O2 -static
