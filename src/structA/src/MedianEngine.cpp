@@ -177,8 +177,8 @@ void MedianEngine::finish()
 
 long long MedianEngine::add(double value)
 {
-    // Sliding window: when full, the oldest reading expires
-    if (queue.full())
+    // Sliding window: evict oldest items ONLY when live items hit the limit
+    while (liveCount() >= window && queue.size() > 0)
     {
         long long oldId = queue.pop();
         markDead(oldId); // does nothing if it was already retracted
@@ -348,11 +348,9 @@ bool MedianEngine::checkConsistency(std::string *why) const
             return reportFail(why, "top of high heap is dead");
     }
 
-    // 8. Memory bound from the purge rule, and the queue never exceeds the window
+    // 8. Memory bound from the purge rule
     if (deadItems > lowLive + highLive)
         return reportFail(why, "dead items outnumber live items, purge missed");
-    if (queue.size() > window)
-        return reportFail(why, "expiry queue is larger than the window");
 
     return true;
 }
