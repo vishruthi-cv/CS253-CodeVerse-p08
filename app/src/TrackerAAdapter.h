@@ -3,71 +3,159 @@
 #include "../../include/IPercentileTracker.h"
 #include "../../src/structA/include/MedianEngine.h"
 #include <unordered_map>
+#include <deque>
+#include <memory>
 #include <cmath>
 #include <stdexcept>
 #include <string>
 
 class TrackerAAdapter : public IPercentileTracker {
 private:
-    MedianEngine engine50;
-    MedianEngine engine95;
-    MedianEngine engine99;
-    
-    // Maps application-level IDs to internal MedianEngine IDs
-    std::unordered_map<int64_t, long long> map50;
-    std::unordered_map<int64_t, long long> map95;
-    std::unordered_map<int64_t, long long> map99;
+    struct EngineEntry {
+        double p;
+        MedianEngine engine;
+        std::unordered_map<int64_t, long long> idMap;
+
+        EngineEntry(int windowSize, double percentile)
+            : p(percentile), engine(windowSize, percentile / 100.0) {}
+    };
+
+    int windowSize_;
+    mutable std::deque<EngineEntry> engines_;
+
+    // Tracks live elements in insertion order so lazily created engines can replay them
+    std::deque<int64_t> liveOrder_;
+    std::unordered_map<int64_t, double> liveValues_;
+
+    EngineEntry& getOrCreateEngine(double p) const {
+        for (auto& entry : engines_) {
+            if (std::abs(entry.p - p) < 1e-6) {
+                return entry;
+            }
+        }
+
+        engines_.emplace_back(windowSize_, p);
+        EngineEntry& created = engines_.back();
+
+        for (int64_t id : liveOrder_) {
+            auto it = liveValues_.find(id);
+            if (it != liveValues_.end()) {
+                created.idMap[id] = created.engine.add(it->second);
+            }
+        }
+        return created;
+    }
 
 public:
-    explicit TrackerAAdapter(int windowSize)
-        : engine50(windowSize, 0.50),
-          engine95(windowSize, 0.95),
-          engine99(windowSize, 0.99) {}
+    explicit TrackerAAdapter(int windowSize) : windowSize_(windowSize) {
+        // Pre-create common quantiles to avoid replay overhead on standard workloads
+        engines_.emplace_back(windowSize_, 50.0);
+        engines_.emplace_back(windowSize_, 95.0);
+        engines_.emplace_back(windowSize_, 99.0);
+    }
 
     void insert(int64_t id, double value) override {
-        map50[id] = engine50.add(value);
-        map95[id] = engine95.add(value);
-        map99[id] = engine99.add(value);
+        if (liveValues_.find(id) != liveValues_.end()) {
+            erase(id);
+        }
+
+        liveOrder_.push_back(id);
+        liveValues_[id] = value;
+
+        if (windowSize_ > 0 && static_cast<int>(liveOrder_.size()) > windowSize_) {
+            int64_t expiredId = liveOrder_.front();
+            liveOrder_.pop_front();
+            liveValues_.erase(expiredId);
+
+            for (auto& entry : engines_) {
+                auto it = entry.idMap.find(expiredId);
+                if (it != entry.idMap.end()) {
+                    entry.engine.retract(it->second);
+                    entry.idMap.erase(it);
+                }
+            }
+        }
+
+        for (auto& entry : engines_) {
+            entry.idMap[id] = entry.engine.add(value);
+        }
     }
 
     bool erase(int64_t id) override {
-        if (map50.find(id) == map50.end()) return false;
-        
-        bool r1 = engine50.retract(map50[id]);
-        bool r2 = engine95.retract(map95[id]);
-        bool r3 = engine99.retract(map99[id]);
-        
-        map50.erase(id);
-        map95.erase(id);
-        map99.erase(id);
-        
-        return r1 && r2 && r3;
+        auto valIt = liveValues_.find(id);
+        if (valIt == liveValues_.end()) return false;
+
+        liveValues_.erase(valIt);
+        for (auto it = liveOrder_.begin(); it != liveOrder_.end(); ++it) {
+            if (*it == id) {
+                liveOrder_.erase(it);
+                break;
+            }
+        }
+
+        bool allRetracted = true;
+        for (auto& entry : engines_) {
+            auto mapIt = entry.idMap.find(id);
+            if (mapIt != entry.idMap.end()) {
+                if (!entry.engine.retract(mapIt->second)) {
+                    allRetracted = false;
+                }
+                entry.idMap.erase(mapIt);
+            }
+        }
+        return allRetracted;
     }
 
     bool update(int64_t id, double newValue) override {
-        if (!erase(id)) return false;
-        insert(id, newValue);
-        return true;
+        if (liveValues_.find(id) == liveValues_.end()) return false;
+        liveValues_[id] = newValue;
+
+        bool allUpdated = true;
+        for (auto& entry : engines_) {
+            auto mapIt = entry.idMap.find(id);
+            if (mapIt != entry.idMap.end()) {
+                if (!entry.engine.retract(mapIt->second)) {
+                    allUpdated = false;
+                }
+                entry.idMap[id] = entry.engine.add(newValue);
+            }
+        }
+        return allUpdated;
     }
 
     double getMedian() const override {
-        if (engine50.empty()) return -1.0;
-        return engine50.query();
+        return getPercentile(50.0);
     }
 
     double getPercentile(double p) const override {
-        if (engine50.empty()) return -1.0;
-        if (std::abs(p - 50.0) < 1e-6) return engine50.query();
-        if (std::abs(p - 95.0) < 1e-6) return engine95.query();
-        if (std::abs(p - 99.0) < 1e-6) return engine99.query();
-        throw std::invalid_argument("TrackerAAdapter only supports p = 50, 95, 99");
+        if (p <= 0.0 || p > 100.0) {
+            throw std::invalid_argument("Percentile p must be in (0, 100]");
+        }
+        if (liveValues_.empty()) return -1.0;
+
+        EngineEntry& entry = getOrCreateEngine(p);
+        if (entry.engine.empty()) return -1.0;
+        return entry.engine.query();
     }
 
-    size_t size() const override { return engine50.liveCount(); }
-    bool empty() const override { return engine50.empty(); }
-    void clear() override {
-        // MedianEngine lacks a clear() method, so we reconstruct in a real app.
-        // Left minimal to satisfy the interface.
+    size_t size() const override {
+        return liveValues_.size();
     }
-    std::string getEngineName() const override { return "StructA-DualHeap"; }
+
+    bool empty() const override {
+        return liveValues_.empty();
+    }
+
+    void clear() override {
+        liveOrder_.clear();
+        liveValues_.clear();
+        engines_.clear();
+        engines_.emplace_back(windowSize_, 50.0);
+        engines_.emplace_back(windowSize_, 95.0);
+        engines_.emplace_back(windowSize_, 99.0);
+    }
+
+    std::string getEngineName() const override {
+        return "StructA-DualHeap";
+    }
 };
