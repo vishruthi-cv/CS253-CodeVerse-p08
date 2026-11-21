@@ -10,7 +10,7 @@ Team 8 CodeVerse - CS 253 / MA 253, Autumn 2026
 | Neharika | 250001073 | @TODO | Structure B owner | src/Struct_B/ | D2 |
 | Dwithi | 250001075 | @TODO | Analyst | bench/, scripts/ | D6 |
 | Kalyani | 250001077 | @KALYANI-cse250001077 | Architect & Integration Engineer | include/, app/src/ | D3 |
-| Anushka | TODO | @TODO | TODO | TODO | D3 |
+| Anushka | 250001080 | @ANUSHKA-Cse250001080 | oracle manager |  | D3 |
 
 ## Summary
 
