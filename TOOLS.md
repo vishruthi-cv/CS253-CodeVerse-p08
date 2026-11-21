@@ -13,6 +13,10 @@ Declared use costs no marks. Each member adds their own rows below.
 | Claude (Anthropic), Nov 2026 | Neharika (Structure B owner) | Checking proof steps for Derivation D2 and organizing notes for the report | docs/derivations/D2_250001073.pdf, REPORT.md (Section 5) | Rewrote the proof and report section in my own words and verified every step of the loop invariant. |
 | Claude (Anthropic), Claude Sonnet 5.5, Nov 2026 | Vishruthi (Structure A owner) | Verification, bug fixing and doubts on a small part of Structure A (MedianEngine, including the checkConsistency() method) | include/MedianEngine.h, src/Struct_A/MedianEngine.cpp | I wrote Structure A myself and only used Claude for targeted fixes and to clear doubts. I kept my own code and approach, compiled and tested it myself, and checked that the output matches the teammate's oracle for p50 and p90. |
 | ChatGPT (OpenAI), Codex, Nov 2026 | Anushka (Oracle owner) | Learning about differential testing and getting help developing the seeded oracle test | oracle/oracle_diff.cpp, README.md, src/structA/src/MinHeap.cpp | I provided the project requirements and interfaces. Codex helped draft the test and documentation and identify a missing `<string>` include. I checked the reported million-step run with seed `20261121`, which passed. |
+| Gemini (Google), Gemini 4 Neon, Nov 2026 | Kalyani (Pipeline/Integration owner) | Fixing eval mode bugs in `main.cpp` and `TrackerAAdapter.h` (`--window` parsing, arbitrary percentiles, and sliding window retraction sync) | app/src/main.cpp, app/src/TrackerAAdapter.h | I updated `main.cpp` to parse `--window` (default 100000) and expire `id - window` entries in Structure B inside `runEvalMode` so both structures share the same window. I also removed the hardcoded percentile restrictions in `TrackerAAdapter` so `QUERY 90` and other percentiles run without aborting. |
+| Gemini (Google), Gemini 4 Carbon, Nov 2026 | Kalyani (Pipeline/Integration owner) | Troubleshooting MSYS2 bash script errors and drafting build and `--eval` interface documentation | scripts/run_all.sh, README.md | Identified that Windows CRLF (`\r`) line endings were breaking `run_all.sh` in MSYS2 and cleaned them. Drafted the Build, Quick Start, and `--eval` instructions in `README.md` to match the Project 8 spec. |
+| Gemini (Google), Gemini Pro, Nov 2026 | Kalyani (Pipeline/Integration owner) | Verifying interface alignment across `IPercentileTracker`, `MonitoringApp`, and the Structure A/B adapters | include/IPercentileTracker.h, include/MonitoringApp.h, app/src/main.cpp | Checked that both adapters follow identical sliding-window semantics and SLA threshold behaviors across dashboard and evaluation modes  |
+
 <!-- Teammates: add one row per tool you used (AI assistants included), with your name,
      what it was used for, which files, and what you changed or verified. -->
 
@@ -43,3 +47,9 @@ Reworded from the chat. Replace with your own exact wording and dates if you kep
 -  **ChatGPT (OpenAI), Codex, Anushka (Oracle owner)**
 
 - 2026-11-21: “Help me create a seeded differential test comparing Structures A and B with a sorted-array oracle. It should check p50 and p90, check Structure A’s invariants, shrink failures, and include build and run instructions. Explain the code as we work through it.”
+
+**Gemini (Google) — 4 Neon, 4 Carbon, Pro, Kalyani (Pipeline/Integration owner)**
+
+- **4 Neon** (2026-11-21): "Eval mode has 3 bugs: TrackerAAdapter throws for percentiles other than 50, 95, and 99, and Structure B has no sliding window. Help me update main.cpp to support `--window w` (default 100000) and expire `id - w` on every insert."
+- **4 Carbon** (2026-11-21): "Running `bash scripts/run_all.sh quick` in MSYS2 gives `set: -: invalid option` and `\r: command not found`. Why is this failing, and what are the exact build and `--eval` commands I should document in README.md?"
+- **Pro** (2026-11-21): "Walk me through how `MonitoringApp` and `runEvalMode` interact with `IPercentileTracker` so I can verify that Structure A and Structure B behave identically under sliding-window retractions."
