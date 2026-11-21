@@ -17,7 +17,7 @@ private:
         std::unordered_map<int64_t, long long> idMap;
 
         EngineEntry(int windowSize, double percentile)
-            : p(percentile), engine(windowSize, percentile / 100.0) {}
+            : p(percentile), engine(0, percentile / 100.0) {} // Pass 0 to disable internal arrival expiry
     };
 
     int windowSize_;
@@ -151,11 +151,3 @@ public:
         liveValues_.clear();
         engines_.clear();
         engines_.emplace_back(windowSize_, 50.0);
-        engines_.emplace_back(windowSize_, 95.0);
-        engines_.emplace_back(windowSize_, 99.0);
-    }
-
-    std::string getEngineName() const override {
-        return "StructA-DualHeap";
-    }
-};
