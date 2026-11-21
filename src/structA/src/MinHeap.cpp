@@ -1,3 +1,4 @@
+#include <string>
 #include "../include/MinHeap.h"
 #include <string>
 
