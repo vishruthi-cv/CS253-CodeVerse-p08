@@ -9,7 +9,7 @@ Team 8 CodeVerse - CS 253 / MA 253, Autumn 2026
 | Vishruthi | 250001079| @vishruthi-cv | Structure A owner | src/Struct_A/ | D1 |
 | Neharika | 250001073 | @TODO | Structure B owner | src/Struct_B/ | D2 |
 | Dwithi | 250001075 | @TODO | Analyst | bench/, scripts/ | D6 |
-| Kalyani | TODO | @TODO | TODO | TODO | D3 |
+| Kalyani | 250001077 | @KALYANI-cse250001077 | Architect & Integration Engineer | include/, app/src/ | D3 |
 | Anushka | TODO | @TODO | TODO | TODO | D3 |
 
 ## Summary
