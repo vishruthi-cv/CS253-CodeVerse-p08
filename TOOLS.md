@@ -6,6 +6,7 @@ Declared use costs no marks. Each member adds their own rows below.
 | Tool and version | Used by | Used for | Files affected | What we changed or verified |
 |---|---|---|---|---|
 | Claude (Anthropic), Claude Sonnet 5.5, Nov 2026 | Dwithi (Analyst) | Wrote the first version of the benchmark program, the plotting script and the run script; adapted them when Structure B's interface changed | bench/bench.cpp, scripts/plot.py, scripts/run_all.sh | Built and ran them on our own machine (Windows, MSYS2 g++). Fixed a crash by linking statically (-static). Checked that A and B give identical answers (bench check reports "A and B AGREE" on 3 configurations). Read through the code so I can explain it in the viva. |
+Claude (Anthropic) | Dwithi, for Sahana (Adversary) | Wrote a first version of derivation D5 | docs/derivations/D5_250001062.pdf | Sahana read it and checked each step
 | Claude (Anthropic), Claude Sonnet 5.5, Nov 2026 | Dwithi (Analyst) | Help writing the predicted cost model and derivation D6 | REPORT.md (predicted cost model), docs/derivations/D6_250001075.pdf | Checked the derivation step by step; the prediction was committed before any measurement. |
 | Claude (Anthropic), Claude Sonnet 5.5, Nov 2026 | Dwithi (Analyst) | Explanations of heaps, lazy deletion, hashing, Fenwick trees, Git and the compiler, with quizzes for revision | none (study only) | None, no code or text was copied from these chats into the repository. |
 | g++ (MSYS2, 16.2.0), Python 3 with matplotlib, pandas, numpy | Dwithi (Analyst) | Compiling the benchmark; making the figures | scripts/run_all.sh, scripts/plot.py | n/a |
@@ -28,6 +29,9 @@ Reworded from the chat. Replace with your own exact wording and dates if you kep
 - 2026-11-12: "Write the benchmark program that feeds the same stream of readings to Structure A and Structure B, times them, measures memory, and writes a CSV, and a script that draws the graphs."
 - 2026-11-14: "Structure B's interface has changed (it now takes decimal values and uses PercentileTrackerB). Update the benchmark to work with it."
 - 2026-11-14: "The program crashes with a segmentation fault when I run it. Here is the output. What is wrong?"
+
+- 2026-11-21: "Sahana's adversary part is missing. Write input generators that keep as many dead entries as possible inside Structure A's heaps, and that make Structure B's compressed domain large compared with its live count."
+- 2026-11-21: "Write derivation D5: construct a sequence under which A holds Θ(n) dead entries when no purge exists, and prove that purging at the threshold bounds dead entries by live entries."
 
 **Gemini (Google), Neharika (Structure B owner)**
 
