@@ -36,6 +36,13 @@
 #include "MedianEngine.h"      // Structure A  (Struct_A/include)
 #include "PercentileTrackerB.h"  // Structure B  (Struct_B/include; needs Application/include)
 
+// B's getPercentile(p): does it expect a fraction (0.5 = median) or a percent (50 = median)?
+// 0 = fraction (what the check mode confirmed so far), 1 = percent.
+// If "bench check" says DISAGREE on every line, flip this to 1.
+#ifndef B_P_IS_PERCENT
+#define B_P_IS_PERCENT 1
+#endif
+
 // ---------------------------------------------------------------- memory ----
 // Resident memory of this process right now, in KB.
 #ifdef _WIN32
@@ -94,7 +101,7 @@ struct TrackerB {
     double p;
     std::vector<char> alive;  // is the reading with id (slot + k*w) still in B? indexed by id % w
     long long liveN = 0;
-    TrackerB(int w_, int pct_, long long U) : tr(domain(U)), w(w_), p(pct_ / 100.0), alive(w_, 0) {}
+    TrackerB(int w_, int pct_, long long U) : tr(domain(U)), w(w_), p(B_P_IS_PERCENT ? (double)pct_ : pct_ / 100.0), alive(w_, 0) {}
     static std::vector<double> domain(long long U) {
         std::vector<double> d((size_t)U);
         for (long long i = 0; i < U; i++) d[(size_t)i] = (double)i;
@@ -103,7 +110,7 @@ struct TrackerB {
     void insert(long long id, long long v) {
         int slot = (int)(id % w);
         if (alive[slot]) {  // this slot still holds id - w, which now leaves the window
-            tr.retract(id - w);
+            tr.erase(id - w);
             alive[slot] = 0;
             liveN--;
         }
@@ -114,14 +121,14 @@ struct TrackerB {
     void retract(long long id) {
         int slot = (int)(id % w);
         if (alive[slot]) {
-            tr.retract(id);
+            tr.erase(id);
             alive[slot] = 0;
             liveN--;
         }
     }
     bool empty() const { return liveN == 0; }
     long long live() const { return liveN; }
-    double query() { return tr.query(p); }
+    double query() { return tr.getPercentile(p); }
     void sample(Counters&) const {}
 };
 

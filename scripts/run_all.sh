@@ -16,9 +16,11 @@ PY=python
 command -v python >/dev/null 2>&1 || PY=python3
 
 echo "== Building =="
-g++ -std=c++17 -O2 -IStruct_A/include -IStruct_B/include -IApplication/include \
-    bench/bench.cpp Struct_A/src/*.cpp Struct_B/src/*.cpp -o build/bench $LIBS
+g++ -std=c++17 -O2 -include string -include cstdint -include vector -include cstddef \
+    -Iinclude -Isrc/Struct_A/include -Isrc/Struct_B/include \
+    bench/bench.cpp src/Struct_A/src/*.cpp src/Struct_B/src/*.cpp -o build/bench $LIBS
 
+    
 echo "== Machine =="
 {
   echo "date: $(date)"
@@ -54,6 +56,13 @@ echo "== E2: vary the retraction rate r (w = 10000) =="
 for S in A B; do
   for R in 0 5 10 25 50; do
     ./build/bench run E2_r $S 10000 $U $R $P $N $SEED $REPS "$CSV"
+  done
+done
+
+echo "== E3: vary the number of distinct values U (w = 10000, retraction rate 10%) =="
+for S in A B; do
+  for UU in 1000 10000 100000 1000000; do
+    ./build/bench run E3_U $S 10000 $UU 10 $P $N $SEED $REPS "$CSV"
   done
 done
 

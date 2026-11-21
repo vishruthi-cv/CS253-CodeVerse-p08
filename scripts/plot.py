@@ -172,8 +172,58 @@ def make_purges():
            + "  (prediction: below about 2).")
 
 
+def make_time_vs_U():
+    e = timed[timed.exp == "E3_U"]
+    if e.empty:
+        return
+    g = stats(e, "U", "ns_per_step")
+    fig, ax = plt.subplots(figsize=(7, 4.6), facecolor=SURFACE)
+    draw(ax, g, "U")
+    u0 = g.U.min()
+    us = np.array(sorted(g.U.unique()), dtype=float)
+    b0 = g[(g.structure == "B") & (g.U == u0)]["mean"].iloc[0]
+    a0 = g[(g.structure == "A") & (g.U == u0)]["mean"].iloc[0]
+    ax.plot(us, b0 * np.log2(us) / np.log2(u0), "--", color=COLOR["B"], linewidth=2,
+            label="B predicted: grows like log2 U")
+    ax.plot(us, np.full_like(us, a0), "--", color=COLOR["A"], linewidth=2,
+            label="A predicted: flat in U")
+    ax.set_xscale("log")
+    ax.set_ylim(bottom=0)
+    style(ax, "Distinct values U", "Time per step (ns)", "Time per step against number of distinct values")
+    finish(fig, ax, "fig6_time_vs_U.png",
+           "Mean of the timed runs, error bars = 1 standard deviation; log x axis. Predicted curves "
+           "are calibrated at the smallest U.")
+
+
+def make_mem_vs_U():
+    e = mem[mem.exp == "E3_U"]
+    if e.empty:
+        return
+    g = e.groupby(["structure", "U"])["mem_kb"].mean().reset_index().rename(
+        columns={"mem_kb": "mean"})
+    g["std"] = 0.0
+    fig, ax = plt.subplots(figsize=(7, 4.6), facecolor=SURFACE)
+    draw(ax, g, "U")
+    umax = g.U.max()
+    us = np.array(sorted(g.U.unique()), dtype=float)
+    b1 = g[(g.structure == "B") & (g.U == umax)]["mean"].iloc[0]
+    a0 = g[(g.structure == "A") & (g.U == g.U.min())]["mean"].iloc[0]
+    ax.plot(us, b1 * us / umax, "--", color=COLOR["B"], linewidth=2,
+            label="B predicted: proportional to U")
+    ax.plot(us, np.full_like(us, a0), "--", color=COLOR["A"], linewidth=2,
+            label="A predicted: flat in U")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    style(ax, "Distinct values U", "Extra resident memory (KB)", "Memory against number of distinct values")
+    finish(fig, ax, "fig7_memory_vs_U.png",
+           "Resident memory added by the structure (one run per point); log axes. B's prediction is "
+           "calibrated at the largest U, A's at the smallest.")
+
+
 make_time_vs_w()
 make_time_vs_r()
 make_mem_vs_w()
 make_mem_vs_r()
 make_purges()
+make_time_vs_U()
+make_mem_vs_U()
