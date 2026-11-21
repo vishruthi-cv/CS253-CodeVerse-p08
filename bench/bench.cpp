@@ -33,8 +33,8 @@
 #include <string>
 #include <vector>
 
-#include "MedianEngine.h"      // Structure A  (Struct_A/include)
-#include "PercentileTrackerB.h"  // Structure B  (Struct_B/include; needs Application/include)
+#include "MedianEngine.h"      // Structure A  (structA/include)
+#include "PercentileTrackerB.h"  // Structure B  (structB/include; needs Application/include)
 
 // B's getPercentile(p): does it expect a fraction (0.5 = median) or a percent (50 = median)?
 // 0 = fraction (what the check mode confirmed so far), 1 = percent.
