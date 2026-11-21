@@ -1,17 +1,17 @@
 # System Architecture & Interface Contract (`IPercentileTracker`)
 
 ## 1. Architectural Overview
-This repository separates the **Domain Application Layer** (`MonitoringApp`) from the **Algorithmic Data Structure Layer** (`Struct_A` and `Struct_B`) using a polymorphic abstract interface (`include/IPercentileTracker.h`).
+This repository separates the **Domain Application Layer** (`MonitoringApp`) from the **Algorithmic Data Structure Layer** (`structA` and `structB`) using a polymorphic abstract interface (`include/IPercentileTracker.h`).
 
 - **Application Layer (`app/`, `include/MonitoringApp.h`):** Consumes live telemetry streams (`recordMetric`), processes late-arriving event retractions (`retractMetric`), slides time windows, and evaluates real-time SLA breaches (`checkSLA`) strictly against `IPercentileTracker` without coupling to internal heap or Fenwick tree mechanics.
-- **Data Structure A (`src/Struct_A/`):** Dual-Heap + Hash-Map Lazy Deletion approach (`O(log N)` amortized insert/retract, `O(1)` median/percentile peek).
-- **Data Structure B (`src/Struct_B/`):** Coordinate-Compressed Fenwick Tree (Binary Indexed Tree) + ID Table (`O(log M)` insert/retract, `O(log M)` order-statistic binary lifting query).
+- **Data Structure A (`src/structA/`):** Dual-Heap + Hash-Map Lazy Deletion approach (`O(log N)` amortized insert/retract, `O(1)` median/percentile peek).
+- **Data Structure B (`src/structB/`):** Coordinate-Compressed Fenwick Tree (Binary Indexed Tree) + ID Table (`O(log M)` insert/retract, `O(log M)` order-statistic binary lifting query).
 
 ---
 
 ## 2. Core Interface Specification (`IPercentileTracker`)
 
-Every concrete tracker (`Struct_A` and `Struct_B`) must inherit from `IPercentileTracker` and implement the following methods:
+Every concrete tracker (`structA` and `structB`) must inherit from `IPercentileTracker` and implement the following methods:
 
 | Method | Signature | Complexity Target | Behavioral Contract |
 | :--- | :--- | :--- | :--- |
@@ -26,7 +26,7 @@ Every concrete tracker (`Struct_A` and `Struct_B`) must inherit from `IPercentil
 
 ## 3. Edge Case Handling & Constraints (Strict Contract)
 
-Both `Struct_A` and `Struct_B` must produce identical outputs across all edge cases:
+Both `structA` and `structB` must produce identical outputs across all edge cases:
 
 1. **Empty Window Rule (`size() == 0`):**
    - Calling `getPercentile(p)` or `getMedian()` on an empty window **must not** throw an exception, dereference null/empty containers, or return `NaN`.
@@ -58,8 +58,8 @@ Both `Struct_A` and `Struct_B` must produce identical outputs across all edge ca
 │   ├── IPercentileTracker.h
 │   └── MonitoringApp.h
 ├── src/                   # Concrete data structure implementations
-│   ├── Struct_A/          # Dual-Heap + Lazy Deletion
-│   └── Struct_B/          # Coordinate-Compressed Fenwick Tree
+│   ├── structA/          # Dual-Heap + Lazy Deletion
+│   └── structB/          # Coordinate-Compressed Fenwick Tree
 ├── app/                   # Application entry point & telemetry simulation
 ├── tests/                 # Correctness verification & latency/throughput benchmarks
 ├── docs/                  # Formal proofs, D3 derivations & architecture notes

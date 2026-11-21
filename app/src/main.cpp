@@ -9,7 +9,7 @@
 
 // ============================================================================
 // ADAPTER / REFERENCE ENGINE
-// Bridges Struct_A / Struct_B core implementations to IPercentileTracker.
+// Bridges structA / structB core implementations to IPercentileTracker.
 // Strictly enforces all edge-case rules defined in INTERFACE.md.
 // ============================================================================
 class ReferenceRetractionEngine : public IPercentileTracker {

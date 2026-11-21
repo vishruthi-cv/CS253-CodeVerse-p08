@@ -17,8 +17,8 @@ command -v python >/dev/null 2>&1 || PY=python3
 
 echo "== Building =="
 g++ -std=c++17 -O2 -include string -include cstdint -include vector -include cstddef \
-    -Iinclude -Isrc/Struct_A/include -Isrc/Struct_B/include \
-    bench/bench.cpp src/Struct_A/src/*.cpp src/Struct_B/src/*.cpp -o build/bench $LIBS
+    -Iinclude -Isrc/structA/include -Isrc/structB/include \
+    bench/bench.cpp src/structA/src/*.cpp src/structB/src/*.cpp -o build/bench $LIBS
 
     
 echo "== Machine =="
