@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iomanip>
 
-void runEvalMode(const std::string& structType) {
+void runEvalMode(const std::string& structType, int windowSize) {
     std::vector<std::string> lines;
     std::string line;
     std::vector<double> allValues;
@@ -34,7 +34,7 @@ void runEvalMode(const std::string& structType) {
     // 2. Initialize the chosen structure
     std::unique_ptr<IPercentileTracker> tracker;
     if (structType == "A" || structType == "a") {
-        tracker = std::make_unique<TrackerAAdapter>(10000); // Default window
+        tracker = std::make_unique<TrackerAAdapter>(windowSize); // Use dynamic window
     } else {
         tracker = std::make_unique<PercentileTrackerB>(allValues);
     }
@@ -51,7 +51,13 @@ void runEvalMode(const std::string& structType) {
         if (op == "ADD" || op == "INSERT") {
             double val;
             iss >> val;
-            tracker->insert(autoId++, val);
+            uint64_t currentId = autoId++;
+            tracker->insert(currentId, val);
+            
+            // Fix: Expire id-window for Structure B so it matches Structure A's window
+            if ((structType == "B" || structType == "b") && currentId > (uint64_t)windowSize) {
+                tracker->erase(currentId - windowSize);
+            }
         } else if (op == "RETRACT" || op == "ERASE") {
             int64_t id;
             iss >> id;
@@ -72,15 +78,19 @@ void runEvalMode(const std::string& structType) {
 int main(int argc, char* argv[]) {
     std::string mode = "dashboard";
     std::string structType = "B";
+    std::string inputFile = "";
+    int windowSize = 100000; // Default window size
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "--eval") mode = "eval";
-        if (arg == "--structure" && i + 1 < argc) structType = argv[++i];
+        else if (arg == "--structure" && i + 1 < argc) structType = argv[++i];
+        else if (arg == "--input" && i + 1 < argc) inputFile = argv[++i];
+        else if (arg == "--window" && i + 1 < argc) windowSize = std::stoi(argv[++i]); // Parse --window flag
     }
 
     if (mode == "eval") {
-        runEvalMode(structType);
+        runEvalMode(structType, windowSize);
         return 0;
     }
 
@@ -100,7 +110,7 @@ int main(int argc, char* argv[]) {
 
     std::unique_ptr<IPercentileTracker> engine;
     if (structType == "A" || structType == "a") {
-        engine = std::make_unique<TrackerAAdapter>(1000);
+        engine = std::make_unique<TrackerAAdapter>(windowSize); // Use dynamic window
     } else {
         engine = std::make_unique<PercentileTrackerB>(initVals);
     }
