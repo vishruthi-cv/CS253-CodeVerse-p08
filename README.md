@@ -1,36 +1,106 @@
-# Running Median with Retractions (Project 8)
+# Project 8: Running Median with Retractions
 
-This repository evaluates two real-time percentile tracking data structures against strict SLA monitoring requirements.
+Team 8 CodeVerse - CS 253 / MA 253, Autumn 2026
 
-## 1. Single Command Build
-To compile the application from a fresh clone, run the following command from the root directory:
+## Team and roles
 
-```bash
-g++ -std=c++17 -O2 -Iinclude -Isrc/structA/include -Isrc/structB/include app/src/main.cpp src/structA/src/*.cpp src/structB/src/*.cpp -o monitor_app
-# Running-median-with-retractions-
+| Name | Roll no. | GitHub | Role | Module folder | Derivation |
+|------|----------|--------|------|---------------|------------|
+| Vishruthi | 250001079| @vishruthi-cv | Structure A owner | src/Struct_A/ | D1 |
+| Neharika | 250001073 | @TODO | Structure B owner | src/Struct_B/ | D2 |
+| Dwithi | 250001075 | @TODO | Analyst | bench/, scripts/ | D6 |
+| Kalyani | TODO | @TODO | TODO | TODO | D3 |
+| Anushka | TODO | @TODO | TODO | TODO | D3 |
 
-## Seeded oracle differential test
+## Summary
 
-`oracle/oracle_diff.cpp` compares Structure A at p50 and p90, Structure B at p50 and p90, and a sorted-vector oracle. It runs one million seeded insertion steps with a window of 1,000 and values from 0 through 9,999. Each step may also retract one randomly selected active reading. Expiry is applied at the window boundary. All results and live counts are compared after each operation; Structure A's full consistency checker runs every 256 insertions for both percentiles. If a mismatch occurs, the program prints the seed and uses chunk-removal shrinking to produce a 1-minimal failing sequence (no single remaining operation can be removed while preserving the failure).
+The problem is to keep a running median (and the p50 and p90 percentiles) of a stream of readings where earlier readings can be retracted, meaning removed again by their id. Structure A uses two heaps (a max heap and a min heap) with a hash table and an expiry queue, and it removes retracted values lazily. Structure B uses a Fenwick tree over the compressed set of values and finds the k-th smallest value by binary-lifting descent.
 
-Seed: `20261121`.
+## Requirements
 
-Build from the repository root with:
+- OS: Windows 10 or 11 with MSYS2 (also expected to work on Ubuntu 22.04, TODO confirm)
+- Language: C++17
+- Compiler: g++ 16.2.0 (MSYS2), flags TODO (for example -O2 -std=c++17)
+- Libraries: standard library only in the program. Python 3 with matplotlib, pandas and numpy is used only for plots and data generation.
 
-```sh
-g++ -std=c++17 -O2 -Iinclude -Isrc/structA/include -Isrc/structB/include src/structA/src/ExpiryQueue.cpp src/structA/src/HashTable.cpp src/structA/src/MaxHeap.cpp src/structA/src/MedianEngine.cpp src/structA/src/MinHeap.cpp src/structB/src/FenwickTree.cpp src/structB/src/IdTable.cpp src/structB/src/PercentileEngine.cpp src/structB/src/PercentileTrackerB.cpp src/structB/src/SortedValuetable.cpp oracle/oracle_diff.cpp -o oracle_diff
-```
+## Build
 
-Run in Windows PowerShell with:
+TODO single command, for example:
 
-```sh
-.\oracle_diff.exe
-```
+    make
 
-On Linux or macOS, run with:
+## Quick start
 
-```sh
-./oracle_diff
-```
+TODO command for a small example, for example:
 
-A passing run prints the seed, step count, and window, followed by `ALL TESTS PASSED`.
+    ./bin/app --input examples/small.txt
+
+Expected output:
+
+    TODO paste the real output here
+
+## Tests
+
+TODO command, for example:
+
+    make test
+
+The differential test compares Structure A and Structure B against a sorted-vector oracle for p50 and p90, using seed TODO and TODO operations. The invariant checks include MedianEngine::checkConsistency() for Structure A.
+
+A passing run ends with:
+
+    TODO paste the real last line, for example: ALL TESTS PASSED
+
+## Evaluation interface (hidden tests)
+
+TODO use the exact commands from the published format for Project 8, for example:
+
+    ./bin/run_ops --structure A < ops.txt > out.txt
+    ./bin/run_ops --structure B < ops.txt > out.txt
+
+Input format: TODO describe one line of input.
+Output format: TODO describe one line of output.
+Example: TODO one small input and its output.
+
+Our program follows the format published for Project 8.
+
+## Benchmarks and figures
+
+Reruns every experiment and regenerates every figure:
+
+    ./scripts/run_all.sh
+
+Takes about TODO minutes. It writes TODO results/raw and results/figures. The benchmark also checks that A and B agree on every configuration and prints "A and B AGREE".
+
+## Repository map
+
+- Application/ - the monitoring application (include/ and src/main.cpp), with the common interface IPercentileTracker.h
+- src/Struct_A/ - Structure A: hash table, min and max heaps, expiry queue, MedianEngine
+- src/Struct_B/ - Structure B: Fenwick tree, compressed value table, id table, PercentileTrackerB
+- bench/ - benchmark program (bench.cpp)
+- adversary/ - adversarial input generators for dead entries in A and the compressed domain in B (TODO remove this line if the folder is not there)
+- scripts/ - run_all.sh and plot.py
+- docs/derivations/ - derivations D1 to D6
+- REPORT.md - full analysis
+- TOOLS.md - tools and AI use declaration
+
+## Results at a glance
+
+| Experiment | Structure A | Structure B |
+|------------|-------------|-------------|
+| TODO time per operation | TODO | TODO |
+| TODO memory | TODO | TODO |
+| TODO worst case input | TODO | TODO |
+
+See REPORT.md for the full analysis and the predicted cost model.
+
+## Known limitations
+
+- TODO write honestly what is incomplete or slow, for example inputs where Structure A builds up many dead entries, or value ranges Structure B does not support.
+- TODO the static linking flag (-static) was needed on our Windows machine to avoid a crash, and it may not be needed on Linux.
+
+## Tools and references
+
+See TOOLS.md and REPORT.md, section References.
+
+Main papers and sources: TODO list the references you actually used.
