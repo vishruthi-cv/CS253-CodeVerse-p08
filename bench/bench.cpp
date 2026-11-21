@@ -40,7 +40,7 @@
 // 0 = fraction (what the check mode confirmed so far), 1 = percent.
 // If "bench check" says DISAGREE on every line, flip this to 1.
 #ifndef B_P_IS_PERCENT
-#define B_P_IS_PERCENT 0
+#define B_P_IS_PERCENT 1
 #endif
 
 // ---------------------------------------------------------------- memory ----

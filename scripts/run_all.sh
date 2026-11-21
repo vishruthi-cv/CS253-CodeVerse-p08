@@ -16,9 +16,11 @@ PY=python
 command -v python >/dev/null 2>&1 || PY=python3
 
 echo "== Building =="
-g++ -std=c++17 -O2 -Iinclude -Isrc/Struct_A/include -Isrc/Struct_B/include \
+g++ -std=c++17 -O2 -include string -include cstdint -include vector -include cstddef \
+    -Iinclude -Isrc/Struct_A/include -Isrc/Struct_B/include \
     bench/bench.cpp src/Struct_A/src/*.cpp src/Struct_B/src/*.cpp -o build/bench $LIBS
 
+    
 echo "== Machine =="
 {
   echo "date: $(date)"
