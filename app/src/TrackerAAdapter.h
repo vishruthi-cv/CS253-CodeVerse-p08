@@ -16,8 +16,10 @@ private:
         MedianEngine engine;
         std::unordered_map<int64_t, long long> idMap;
 
+        // The critical fix: pass 0 to MedianEngine to disable its internal arrival-based expiry
+        // so that the adapter's liveOrder_ logic entirely controls window eviction.
         EngineEntry(int windowSize, double percentile)
-            : p(percentile), engine(0, percentile / 100.0) {} // Pass 0 to disable internal arrival expiry
+            : p(percentile), engine(0, percentile / 100.0) {} 
     };
 
     int windowSize_;
@@ -151,3 +153,11 @@ public:
         liveValues_.clear();
         engines_.clear();
         engines_.emplace_back(windowSize_, 50.0);
+        engines_.emplace_back(windowSize_, 95.0);
+        engines_.emplace_back(windowSize_, 99.0);
+    }
+
+    std::string getEngineName() const override {
+        return "StructA-DualHeap";
+    }
+};
