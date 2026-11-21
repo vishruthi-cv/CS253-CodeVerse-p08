@@ -1,24 +1,3 @@
-// bench/bench.cpp  --  Benchmark harness for Project 8 (Analyst)
-//
-// Two commands:
-//
-//   bench check <w> <U> <r%> <p%> <N> <seed>
-//       Feeds the same stream to A and B and compares them at every step.
-//       Run this first: timing a structure that gives wrong answers is useless.
-//
-//   bench run <exp> <A|B> <w> <U> <r%> <p%> <N> <seed> <reps> <csv>
-//       Times one structure. Rep 0 is a warm-up and is also used to measure
-//       memory. Reps 1..reps are the timed runs. One CSV row is appended per rep.
-//
-// Symbols:  w = window size,  U = number of distinct values,
-//           r% = chance (in percent) that a step also retracts an earlier reading,
-//           p% = percentile (50 = median),  N = number of readings (steps),
-//           seed = random seed (rep k uses seed + k, so every run is reproducible).
-//
-// One "step" = insert a reading, maybe retract one earlier reading, then query.
-// Expiry is part of the insert: A expires inside add(), B's adapter expires the
-// reading that leaves the window (the same rule, so A and B see the same window).
-
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif

@@ -1,26 +1,3 @@
-// adversary/adversary.cpp  --  Adversarial input generators for Project 8 (Adversary role)
-//
-// Build:  g++ -std=c++17 -O2 adversary/adversary.cpp -o build/adversary
-// Usage:  build/adversary <pattern> <w> <U> <N> <seed> > ops.txt
-//
-//   pattern  deadheap  retract readings that sit deep inside A's heaps (extreme values),
-//                      so lazy deletion can never prune them from a heap top
-//            monotone  strictly increasing values and no retractions: every expiring
-//                      reading is the smallest one, which sits at the bottom of A's lower heap
-//            bigdomain every value distinct, U large, w small: B's compressed domain
-//                      (size U) is huge compared with its live count (at most w)
-//   w = window size, U = number of distinct values (values are 0..U-1),
-//   N = number of readings, seed = random seed (same arguments give the same file).
-//
-// Output (text, one operation per line, ids are 0,1,2,... in insertion order):
-//   # <comment line with the arguments>
-//   I <value>   insert a reading (its id is the number of earlier I lines)
-//   R <id>      retract the reading with this id (always a reading still in the window)
-//   Q           query the median (after every insert and its optional retraction)
-// Expiry is not written: a reading leaves the window when w newer readings have arrived.
-//
-// Large outputs are generated from the seed and never committed (see .gitignore).
-
 #include <cstdio>
 #include <cstdlib>
 #include <random>
