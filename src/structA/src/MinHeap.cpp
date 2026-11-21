@@ -1,3 +1,4 @@
+#include <string>
 #include "../include/MinHeap.h"
 
 static bool reportFail(std::string *why, const std::string &msg)
