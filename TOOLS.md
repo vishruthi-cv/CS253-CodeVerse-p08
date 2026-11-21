@@ -13,7 +13,7 @@ Declared use costs no marks. Each member adds their own rows below.
 | Claude (Anthropic), Nov 2026 | Neharika (Structure B owner) | Checking proof steps for Derivation D2 and organizing notes for the report | docs/derivations/D2_250001073.pdf, REPORT.md (Section 5) | Rewrote the proof and report section in my own words and verified every step of the loop invariant. |
 | Claude (Anthropic), Claude Sonnet 5.5, Nov 2026 | Vishruthi (Structure A owner) | Verification, bug fixing and doubts on a small part of Structure A (MedianEngine, including the checkConsistency() method) | include/MedianEngine.h, src/Struct_A/MedianEngine.cpp | I wrote Structure A myself and only used Claude for targeted fixes and to clear doubts. I kept my own code and approach, compiled and tested it myself, and checked that the output matches the teammate's oracle for p50 and p90. |
 
-
+| ChatGPT (OpenAI), Codex, Nov 2026 | Anushka (Oracle owner) | Learning about differential testing and getting help developing the seeded oracle test | oracle/oracle_diff.cpp, README.md, src/structA/src/MinHeap.cpp | I provided the project requirements and interfaces. Codex helped draft the test and documentation and identify a missing `<string>` include. I checked the reported million-step run with seed `20261121`, which passed. |
 <!-- Teammates: add one row per tool you used (AI assistants included), with your name,
      what it was used for, which files, and what you changed or verified. -->
 
@@ -40,3 +40,7 @@ Reworded from the chat. Replace with your own exact wording and dates if you kep
 
 -  "Here is my MedianEngine code and the wrong output. Can you point out the bug without changing my approach?"
 -  "Is my checkConsistency() method checking the right things? I have a doubt about the heap sizes."
+
+-  **ChatGPT (OpenAI), Codex, Anushka (Oracle owner)**
+
+- 2026-11-21: “Help me create a seeded differential test comparing Structures A and B with a sorted-array oracle. It should check p50 and p90, check Structure A’s invariants, shrink failures, and include build and run instructions. Explain the code as we work through it.”
