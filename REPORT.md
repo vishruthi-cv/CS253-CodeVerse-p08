@@ -399,7 +399,7 @@ All figures are made by scripts/plot.py from results/raw/bench.csv. Each time po
 
 
 
-> **Figure placeholder:** `results/figures/fig1_time_vs_w.png`
+> **Figure placeholder:** ![Figure 1](results/figures/fig1_time_vs_w.png
 
 
 
@@ -409,7 +409,7 @@ Figure 1. E1: time per operation against w (log axes), Structure A, Structure B 
 
 
 
-> **Figure placeholder:** ![Figure 1](results/figures/fig3_memory_vs_w.png)
+> **Figure placeholder:** ![Figure 2](results/figures/fig3_memory_vs_w.png)
 
 
 
@@ -419,7 +419,7 @@ Figure 2. E1: resident memory against w, Structure A and Structure B. Script: sc
 
 
 
-> **Figure placeholder:** ![Figure2](results/figures/fig2_time_vs_r.png)
+> **Figure placeholder:** ![Figure 3](results/figures/fig2_time_vs_r.png)
 
 
 
@@ -429,7 +429,7 @@ Figure 3. E2: time per operation against the retraction rate r, with prediction.
 
 
 
-> **Figure placeholder:** ![Figure 3](results/figures/fig4_memory_vs_r.png)
+> **Figure placeholder:** ![Figure 4](results/figures/fig4_memory_vs_r.png)
 
 
 
@@ -439,7 +439,7 @@ Figure 4. E2: resident memory against r, with prediction. Script: scripts/plot.p
 
 
 
-> **Figure placeholder:** ![Figure 4](results/figures/fig6_time_vs_U.png)
+> **Figure placeholder:** ![Figure 5](results/figures/fig6_time_vs_U.png)
 
 
 
@@ -449,7 +449,7 @@ Figure 5. E3: time per operation against the number of distinct values U (log ax
 
 
 
-> **Figure placeholder:** ![Figure 5](results/figures/fig7_memory_vs_U.png)
+> **Figure placeholder:** ![Figure 6](results/figures/fig7_memory_vs_U.png)
 
 
 
