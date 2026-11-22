@@ -399,7 +399,7 @@ All figures are made by scripts/plot.py from results/raw/bench.csv. Each time po
 
 
 
-> **Figure placeholder:** ![Figure 1](results/figures/fig1_time_vs_w.png
+> **Figure placeholder:** ![Figure 1](results/figures/fig1_time_vs_w.png)
 
 
 
